@@ -65,7 +65,9 @@ CREATE DATABASE StudyPortalDB;
 ```
 3. Apply migrations:
 ```bash
-dotnet ef database update
+Enable-Migrations
+Add-Migration InitialCreate
+Update-Database
 ```
 
 ### 4️⃣ Required Packages
