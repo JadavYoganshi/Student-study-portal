@@ -1,0 +1,52 @@
+﻿@model SSP.Models.Domain.Homework
+
+@{
+    ViewData["Title"] = "Add Homework";
+}
+
+<h2>Add New Homework</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<form asp-action="Add" method="post">
+    <div class="form-group">
+        <label>Subject</label>
+        <input asp-for="Subject" class="form-control" />
+        <span asp-validation-for="Subject" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Title</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Homework Date</label>
+        <input asp-for="HomeworkDate" type="date" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Due Date</label>
+        <input asp-for="DueDate" type="date" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Is Finished</label>
+        <input asp-for="IsFinished" type="checkbox" class="form-check-input" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Submit Homework</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

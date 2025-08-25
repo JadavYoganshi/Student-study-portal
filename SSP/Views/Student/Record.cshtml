@@ -1,0 +1,103 @@
+﻿@model SSP.Models.ViewModels.StudentRecordViewModel
+@{
+    ViewData["Title"] = "Record";
+}
+
+<div class="container mt-5">
+    <!-- ✅ Homework Section -->
+    <h2 class="mb-4">📋 Due Homeworks</h2>
+
+    @if (Model.Homeworks != null && Model.Homeworks.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Subject</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Due</th>
+                        <th>Status</th> <!-- 🔁 New column added -->
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Homeworks.Count; i++)
+                    {
+                        var hw = Model.Homeworks[i];
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@hw.Subject</td>
+                            <td>@hw.Title</td>
+                            <td>@hw.Description</td>
+                            <td>
+                                @if (hw.DueDate.HasValue)
+                                {
+                                    @hw.DueDate.Value.ToString("MMM dd, yyyy")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No Due Date</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @(hw.IsFinished ? "bg-success" : "bg-danger")">
+                                    @(hw.IsFinished ? "Completed" : "Pending")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <a asp-controller="Student" asp-action="Homework" class="btn btn-primary mt-3">
+                <i class="fas fa-arrow-right"></i> Go to Homework Page
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">No due homework available.</div>
+    }
+
+    <hr class="my-5" />
+
+    <!-- ✅ To-Do Tasks Section -->
+    <h2 class="mb-4">✅ Pending Tasks</h2>
+
+    @if (Model.Todos != null && Model.Todos.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-success">
+                    <tr>
+                        <th>#</th>
+                        <th>Task</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Todos.Count; i++)
+                    {
+                        var todo = Model.Todos[i];
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@todo.Task</td>
+                            <td>
+                                <span class="badge @(todo.IsCompleted ? "bg-success" : "bg-warning text-dark")">
+                                    @(todo.IsCompleted ? "Completed" : "Pending")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <a asp-controller="Todo" asp-action="Index" class="btn btn-success mt-3">
+                <i class="fas fa-arrow-right"></i> Go to To-Do Page
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">No pending tasks found.</div>
+    }
+</div>

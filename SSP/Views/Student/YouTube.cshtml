@@ -1,0 +1,102 @@
+﻿@{
+    ViewData["Title"] = "YouTube Study Videos";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">📘 Study Videos</h2>
+
+    <!-- 🔍 YouTube Search -->
+    <form onsubmit="return searchYouTube()" class="row justify-content-center mb-4">
+        <div class="col-md-6 col-10">
+            <input type="text" id="searchTerm" class="form-control" placeholder="Search study topics on YouTube..." required />
+        </div>
+        <div class="col-md-2 col-4 mt-2 mt-md-0">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+    </form>
+
+    <!-- 📺 Video Results -->
+    <div id="videoResults" class="row"></div>
+
+    <!-- Load More Button -->
+    <div id="loadMoreContainer" class="text-center mt-4">
+        <button id="loadMoreButton" class="btn btn-secondary" onclick="loadMoreVideos()" style="display: none;">Load More</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const apiKey = 'AIzaSyB0WrJT_Yvd3iYCREHguRaK2zm0EwsM1CQ';
+        let nextPageToken = ''; // For pagination
+        let searchTerm = ''; // Store search term
+
+        // Default videos on page load
+        window.onload = function () {
+            searchYouTube('study motivation');
+        };
+
+        function searchYouTube(query = null) {
+            searchTerm = query || document.getElementById("searchTerm").value.trim();
+            if (!searchTerm) return false;
+
+            nextPageToken = ''; // Reset pagination token on new search
+            fetchYouTubeVideos(searchTerm);
+            return false; // prevent form post
+        }
+
+        function fetchYouTubeVideos(query) {
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&q=${encodeURIComponent(query)}&key=${apiKey}&pageToken=${nextPageToken}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsContainer = document.getElementById("videoResults");
+                    const loadMoreButton = document.getElementById("loadMoreButton");
+                    if (nextPageToken === '') { // Clear previous results on a new search
+                        resultsContainer.innerHTML = '';
+                    }
+
+                    if (!data.items || data.items.length === 0) {
+                        resultsContainer.innerHTML = '<p class="text-danger text-center">No videos found.</p>';
+                        loadMoreButton.style.display = 'none'; // Hide Load More if no results
+                        return;
+                    }
+
+                    data.items.forEach(item => {
+                        const videoId = item.id.videoId;
+                        const title = item.snippet.title;
+                        const description = item.snippet.description;
+                        const thumbnail = item.snippet.thumbnails.medium.url;
+
+                        const videoCard = `
+                            <div class="col-md-3 col-sm-6 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    <img src="${thumbnail}" class="card-img-top" alt="${title}">
+                                    <div class="card-body">
+                                        <h6 class="card-title">${title}</h6>
+                                        <p class="card-text small">${description.substring(0, 60)}...</p>
+                                        <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="btn btn-sm btn-primary">Watch</a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        resultsContainer.innerHTML += videoCard;
+                    });
+
+                    // Set up pagination
+                    nextPageToken = data.nextPageToken || '';
+                    loadMoreButton.style.display = nextPageToken ? 'inline-block' : 'none'; // Show Load More button if more results exist
+                })
+                .catch(error => {
+                    console.error("YouTube API Error:", error);
+                    alert("Something went wrong. Please try again.");
+                });
+        }
+
+        function loadMoreVideos() {
+            if (nextPageToken && searchTerm) {
+                fetchYouTubeVideos(searchTerm);
+            }
+        }
+    </script>
+}

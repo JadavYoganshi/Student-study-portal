@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Student Dashboard";
+    var name = ViewBag.StudentName;
+}
+
+<div style="text-align: center; margin-top: 30px;">
+    <h2>Welcome, <strong>@name</strong> 👋</h2>
+
+    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 40px;">
+        <a asp-controller="Homework" asp-action="Add" class="btn btn-primary">📚 Homework</a>
+        <a href="/ToDo/Index" class="btn btn-success">📝 To-Do</a>
+        <a href="https://www.youtube.com" target="_blank" class="btn btn-danger">▶️ YouTube</a>
+        <a href="https://www.wikipedia.org" target="_blank" class="btn btn-warning">📖 Wikipedia</a>
+        <a href="/Books/Index" class="btn btn-info">📘 Books</a>
+    </div>
+</div>

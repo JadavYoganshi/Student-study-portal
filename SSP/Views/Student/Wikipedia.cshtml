@@ -1,0 +1,89 @@
+﻿@{
+    ViewData["Title"] = "Wikipedia Search";
+}
+
+<h2 class="mt-4 mb-4">🌐 Explore Wikipedia</h2>
+
+<div class="input-group mb-3">
+    <input type="text" class="form-control" id="wikiSearchInput" placeholder="Search any topic on Wikipedia...">
+    <button class="btn btn-primary" id="wikiSearchBtn">Search</button>
+</div>
+
+<!-- Predefined topics -->
+<div id="predefinedTopics" class="mt-4">
+    <h4>Popular Topics:</h4>
+</div>
+
+<!-- Search result -->
+<div id="wikiResult" class="mt-4"></div>
+
+@section Scripts {
+    <script>
+        const predefinedTopics = ["Cricket", "Technology", "Science", "History", "Art"];
+
+        // Reusable function to display summary
+        function displayWikipediaSummary(topic, targetElement) {
+            const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.extract) {
+                        const html = `
+                            <div class="mb-3 p-3 border rounded shadow-sm">
+                                <h5>${data.title}</h5>
+                                <p>${data.extract}</p>
+                                <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(data.title)}" target="_blank" class="btn btn-outline-primary btn-sm">Read More</a>
+                            </div>
+                        `;
+                        targetElement.innerHTML += html;
+                    }
+                })
+                .catch(() => {
+                    targetElement.innerHTML += `<div class="alert alert-danger">Could not load topic: ${topic}</div>`;
+                });
+        }
+
+        // Function to show predefined topics
+        function showPredefinedTopics() {
+            const container = document.getElementById("predefinedTopics");
+            container.innerHTML = "<h4>Popular Topics:</h4>";
+            predefinedTopics.forEach(topic => {
+                displayWikipediaSummary(topic, container);
+            });
+            container.style.display = "block";
+        }
+
+        // On page load, show predefined topics
+        document.addEventListener("DOMContentLoaded", showPredefinedTopics);
+
+        // Search button click
+        document.getElementById("wikiSearchBtn").addEventListener("click", function () {
+            const query = document.getElementById("wikiSearchInput").value.trim();
+            const resultDiv = document.getElementById("wikiResult");
+
+            if (!query) {
+                resultDiv.innerHTML = "";
+                showPredefinedTopics();
+                return;
+            }
+
+            // Hide predefined topics
+            document.getElementById("predefinedTopics").style.display = "none";
+
+            // Show search result
+            resultDiv.innerHTML = "";
+            displayWikipediaSummary(query, resultDiv);
+        });
+
+        // Automatically restore predefined topics if search bar is cleared
+        document.getElementById("wikiSearchInput").addEventListener("input", function () {
+            const query = this.value.trim();
+            const resultDiv = document.getElementById("wikiResult");
+
+            if (query === "") {
+                resultDiv.innerHTML = "";
+                showPredefinedTopics();
+            }
+        });
+    </script>
+}

@@ -1,0 +1,168 @@
+﻿@using SSP.Models.Domain
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Student Dashboard";
+    var videoId = HttpContextAccessor.HttpContext?.Session.GetString("mostWatchedVideo");
+}
+
+<style>
+    body {
+        background-color: #f9f9fb;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+        }
+
+        .dashboard-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .dashboard-card .card-body {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .dashboard-card .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .dashboard-card:hover .card-title {
+            color: #0d6efd;
+        }
+
+        .dashboard-card p {
+            font-size: 0.95rem;
+            color: #555;
+            transition: color 0.3s ease;
+        }
+
+        .dashboard-card:hover p {
+            color: #333;
+        }
+
+    .btn {
+        border-radius: 20px;
+        font-weight: 500;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.03);
+        }
+
+    iframe {
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+
+    h3 {
+        font-weight: 700;
+        color: #333;
+    }
+</style>
+
+<h3 class="text-center my-4">Welcome @ViewBag.StudentName !</h3>
+
+@if (!string.IsNullOrEmpty(videoId))
+{
+    <div class="text-center mb-4">
+        <iframe width="560" height="315"
+                src="https://www.youtube.com/embed/@(videoId)"
+                frameborder="0"
+                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+        </iframe>
+    </div>
+}
+else
+{
+    <p class="text-center text-muted">No video selected yet. Start exploring to personalize your learning!</p>
+}
+
+<div class="container mt-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
+
+        <!-- Row 1: Homework, To-Do, YouTube -->
+        <div class="col">
+            <div class="dashboard-card">
+                <img src="~/images/homework.jpg" alt="Homework" />
+                <div class="card-body">
+                    <h5 class="card-title">Homework</h5>
+                    <p>Add homeworks and assign them deadlines. Displayed prioritized by deadlines.</p>
+                    <a href="@Url.Action("Homework", "Student")" class="btn btn-info w-100">Open Homework</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="dashboard-card">
+                <img src="~/images/to-do.jpg" alt="To Do" />
+                <div class="card-body">
+                    <h5 class="card-title">To Do</h5>
+                    <p>Add your to-do lists for your day and remove them as you finish.</p>
+                    <a href="@Url.Action("Todo", "Student")" class="btn btn-warning w-100">Open To-Do</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="dashboard-card">
+                <img src="~/images/youtube.jpg" alt="YouTube" />
+                <div class="card-body">
+                    <h5 class="card-title">YouTube</h5>
+                    <p>Search YouTube and select your desired video to play it on YouTube.</p>
+                    <a href="@Url.Action("YouTube", "Student")" class="btn btn-danger w-100">Open YouTube</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Books + Wikipedia -->
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <img src="~/images/book.jpg" alt="Books" />
+                <div class="card-body">
+                    <h5 class="card-title">Books</h5>
+                    <p>Browse books from a list of neatly organized book menu.</p>
+                    <a href="@Url.Action("Books", "Student")" class="btn btn-primary w-100">Open Books</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <img src="~/images/wikipedia.jpg" alt="Wikipedia" />
+                <div class="card-body">
+                    <h5 class="card-title">Wikipedia</h5>
+                    <p>Homework and Assignments? Search Wikipedia to get fast results.</p>
+                    <a href="@Url.Action("Wikipedia", "Student")" class="btn btn-success w-100">Open Wikipedia</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

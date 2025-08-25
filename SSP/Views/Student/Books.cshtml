@@ -1,0 +1,204 @@
+﻿@{
+    ViewData["Title"] = "Books";
+    var defaultBooks = new List<(string Title, string Description)>
+    {
+        ("C# Programming", "Learn the basics and advanced concepts of C#."),
+        ("Python Basics", "A beginner's guide to Python programming."),
+        ("Advanced Java", "Master Java with object-oriented techniques."),
+        ("Web Development with HTML & CSS", "Design beautiful web pages using HTML and CSS."),
+        ("JavaScript Essentials", "Everything you need to get started with JavaScript."),
+        ("ASP.NET Core Guide", "Build dynamic web apps using ASP.NET Core."),
+        ("SQL for Beginners", "Learn how to query databases using SQL."),
+        ("Data Structures in C", "Understand core data structures with C."),
+        ("Machine Learning with Python", "Explore the world of AI using Python."),
+        ("Django Unleashed", "Develop powerful apps using Django."),
+        ("Intro to Algorithms", "Learn the fundamental algorithms used in computer science."),
+        ("AI and Neural Networks", "Explore the concepts behind artificial intelligence and neural networks.")
+    };
+}
+
+<h2 class="mb-4 text-center text-primary">📚 Book Explorer</h2>
+
+<div class="input-group mb-5 justify-content-center">
+    <input type="text" id="bookSearch" class="form-control form-control-lg w-50" placeholder="Search for any book...">
+    <button class="btn btn-primary btn-lg" id="searchButton">Search</button>
+</div>
+
+<div id="bookList" class="row justify-content-center">
+    @foreach (var book in defaultBooks)
+    {
+        var query = System.Net.WebUtility.UrlEncode(book.Title + " book pdf");
+        var link = $"https://books.google.co.in/books?hl=en&q={query}";
+        <div class="col-md-4 mb-4">
+            <a href="@link" target="_blank" class="text-decoration-none text-dark">
+                <div class="card shadow-lg border-0 rounded h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-center mb-3" style="font-size: 1.2rem; font-weight: 600;">@book.Title</h5>
+                        <p class="card-text text-muted text-center mb-4" style="font-size: 1rem;">@book.Description</p>
+                        <div class="text-center mt-auto">
+                            <a href="@link" class="btn btn-outline-primary btn-lg" target="_blank">View on Google Books</a>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    }
+</div>
+
+<style>
+    /* BOOKS PAGE STYLES */
+    .card {
+        border-radius: 10px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .card-text {
+        font-size: 1rem;
+        color: #6c757d;
+        font-weight: 400;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-outline-primary {
+        font-size: 1rem;
+        padding: 10px 20px;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+    .input-group {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    #searchButton {
+        border-radius: 0 10px 10px 0;
+        font-size: 1.1rem;
+    }
+
+    #bookSearch {
+        border-radius: 10px 0 0 10px;
+    }
+
+    .card-body a {
+        text-decoration: none;
+    }
+
+    /* Responsive Layout */
+    .col-md-4 {
+        display: flex;
+        justify-content: center;
+    }
+
+    
+
+    #bookSearch {
+        width: 80%;
+    }
+
+    #searchButton {
+        width: 20%;
+    }
+
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const defaultBooks = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(defaultBooks));
+        const searchInput = document.getElementById("bookSearch");
+        const searchButton = document.getElementById("searchButton");
+        const bookList = document.getElementById("bookList");
+
+        function createBookCard(book) {
+            const title = book.Item1;
+            const description = book.Item2;
+
+            const encodedQuery = encodeURIComponent(title + " book pdf");
+            const link = `https://books.google.co.in/books?hl=en&q=${encodedQuery}`;
+
+            const wrapper = document.createElement("a");
+            wrapper.href = link;
+            wrapper.target = "_blank";
+            wrapper.className = "text-decoration-none text-dark";
+
+            const card = document.createElement("div");
+            card.className = "card shadow-lg border-0 rounded h-100";
+
+            const cardBody = document.createElement("div");
+            cardBody.className = "card-body d-flex flex-column";
+
+            const titleElem = document.createElement("h5");
+            titleElem.className = "card-title text-center mb-3";
+            titleElem.innerText = title;
+
+            const desc = document.createElement("p");
+            desc.className = "card-text text-muted text-center mb-4";
+            desc.innerText = description;
+
+            const linkBtn = document.createElement("div");
+            linkBtn.className = "text-center mt-auto";
+            const linkAnchor = document.createElement("a");
+            linkAnchor.href = link;
+            linkAnchor.className = "btn btn-outline-primary btn-lg";
+            linkAnchor.innerText = "View on Google Books";
+            linkAnchor.target = "_blank";
+
+            linkBtn.appendChild(linkAnchor);
+
+            cardBody.appendChild(titleElem);
+            cardBody.appendChild(desc);
+            cardBody.appendChild(linkBtn);
+            card.appendChild(cardBody);
+
+            wrapper.appendChild(card);
+            return wrapper;
+        }
+
+        function updateBookList() {
+            const query = searchInput.value.trim().toLowerCase();
+            bookList.innerHTML = "";
+
+            const filtered = defaultBooks.filter(book =>
+                book.Item1.toLowerCase().includes(query)
+            );
+
+            if (filtered.length > 0) {
+                filtered.forEach(book => bookList.appendChild(createBookCard(book)));
+            } else if (query !== "") {
+                const customBook = {
+                    Item1: query.charAt(0).toUpperCase() + query.slice(1),
+                    Item2: "Search result from Google Books"
+                };
+                bookList.appendChild(createBookCard(customBook));
+            } else {
+                defaultBooks.forEach(book => bookList.appendChild(createBookCard(book)));
+            }
+        }
+
+        searchButton.addEventListener("click", updateBookList);
+        searchInput.addEventListener("input", updateBookList);
+    </script>
+}

@@ -1,0 +1,62 @@
+﻿@model SSP.Models.ViewModels.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Admin Dashboard</h2>
+        <a href="@Url.Action("ViewAuditLogs", "Admin")" class="btn btn-outline-primary">
+            <i class="bi bi-journal-text me-2"></i>View Audit Logs
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white fw-semibold fs-5">
+            Registered Students
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var student in Model.Students)
+                        {
+                            <tr>
+                                <td>@student.S_Id</td>
+                                <td>@student.S_Name</td>
+                                <td>@student.S_Email</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f2f2f2;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .card,
+    .table,
+    .table-responsive {
+        box-shadow: none !important;
+        transform: none !important;
+        border: none !important;
+    }
+</style>

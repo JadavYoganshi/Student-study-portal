@@ -1,0 +1,194 @@
+﻿@model List<SSP.Models.Domain.Todo>
+
+@{
+    ViewData["Title"] = "To-Do List";
+}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="container mt-5">
+    <h2 class="mb-4">📝 Add Task</h2>
+
+    <form id="todoForm" class="row g-3 mb-4">
+        <div class="col-md-10">
+            <input type="text" name="task" id="taskInput" class="form-control" placeholder="Enter a task..." required />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-success w-100">
+                <i class="fa fa-plus"></i> Add Task
+            </button>
+        </div>
+    </form>
+
+    <h3>📋 To-Do Tasks</h3>
+    <table class="table table-bordered" id="todoTable">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Task</th>
+                <th>Status</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var task = Model[i];
+                <tr id="todo-@task.TodoId">
+                    <td>@(i + 1)</td>
+                    <td>@task.Task</td>
+                    <td>
+                        <div class="form-check d-flex align-items-center">
+                            <input class="form-check-input toggle-complete" type="checkbox" data-id="@task.TodoId" id="check-@task.TodoId" @(task.IsCompleted ? "checked" : "") />
+                            <label class="form-check-label ms-2 fw-bold" for="check-@task.TodoId">
+                                @(task.IsCompleted ? "Completed" : "Pending")
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary edit-btn" data-id="@task.TodoId" data-task="@task.Task">
+                            <i class="fa fa-edit"></i> Edit
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-danger delete-btn" data-id="@task.TodoId">
+                            <i class="fa fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function updateTaskList(tasks) {
+        var tbody = $("#todoTable tbody");
+        tbody.empty();
+        tasks.forEach((task, index) => {
+            const statusText = task.isCompleted ? 'Completed' : 'Pending';
+            const checked = task.isCompleted ? 'checked' : '';
+
+            const row = `<tr id="todo-${task.todoId}">
+                <td>${index + 1}</td>
+                <td>${task.task}</td>
+                <td>
+                    <div class="form-check d-flex align-items-center">
+                        <input class="form-check-input toggle-complete" type="checkbox" data-id="${task.todoId}" id="check-${task.todoId}" ${checked} />
+                        <label class="form-check-label ms-2 fw-bold" for="check-${task.todoId}">
+                            ${statusText}
+                        </label>
+                    </div>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-primary edit-btn" data-id="${task.todoId}" data-task="${task.task}">
+                        <i class="fa fa-edit"></i> Edit
+                    </button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="${task.todoId}">
+                        <i class="fa fa-trash"></i> Delete
+                    </button>
+                </td>
+            </tr>`;
+            tbody.append(row);
+        });
+    }
+
+    $(document).ready(function () {
+        // Add Task
+        $("#todoForm").submit(function (e) {
+            e.preventDefault();
+            var task = $("#taskInput").val().trim();
+            if (task === "") {
+                Swal.fire("Error", "Please enter a task.", "error");
+                return;
+            }
+            $.post("/ToDo/SaveTodo", { task: task }, function (res) {
+                if (res.success) {
+                    updateTaskList(res.tasks);
+                    Swal.fire("Success", "Task added successfully.", "success");
+                    $("#taskInput").val('');
+                } else {
+                    Swal.fire("Error", res.message, "error");
+                }
+            });
+        });
+
+        // Toggle Complete
+        $(document).on("change", ".toggle-complete", function () {
+            var id = $(this).data("id");
+            var isCompleted = $(this).is(":checked");
+
+            $.post("/ToDo/ToggleComplete", { id: id, isCompleted: isCompleted }, function (res) {
+                if (res.success) {
+                    updateTaskList(res.tasks);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Status updated successfully',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire("Error", res.message, "error");
+                }
+            });
+        });
+
+        // Delete Task
+        $(document).on("click", ".delete-btn", function () {
+            var id = $(this).data("id");
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post("/ToDo/Delete", { id: id }, function (res) {
+                        if (res.success) {
+                            updateTaskList(res.tasks);
+                            Swal.fire("Deleted!", "Task has been deleted.", "success");
+                        } else {
+                            Swal.fire("Error", res.message, "error");
+                        }
+                    });
+                }
+            });
+        });
+
+        // Edit Task
+        $(document).on("click", ".edit-btn", function () {
+            var id = $(this).data("id");
+            var oldTask = $(this).data("task");
+
+            Swal.fire({
+                title: "Edit Task",
+                input: "text",
+                inputValue: oldTask,
+                showCancelButton: true,
+                confirmButtonText: "Save",
+                preConfirm: (newTask) => {
+                    if (!newTask) {
+                        Swal.showValidationMessage("Task cannot be empty!");
+                    }
+                    return newTask;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post("/ToDo/Edit", { id: id, task: result.value }, function (res) {
+                        if (res.success) {
+                            updateTaskList(res.tasks);
+                            Swal.fire("Updated!", "Task updated successfully.", "success");
+                        } else {
+                            Swal.fire("Error", res.message, "error");
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
